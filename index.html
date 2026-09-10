@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOCP DATA VIEWER - 데이터 뷰어</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    // 새로고침 시 테마 깜빡임 방지: CSS 적용 전에 data-theme 미리 설정
+    (function () {
+      var t = localStorage.getItem("socpTheme");
+      if (!t) t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- 상단 네비게이션 -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo"><span class="logo-icon material-icons-round">radar</span>SOCP DATA VIEWER</div>
+      <nav class="tabs">
+        <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span>원본데이터</div>
+        <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span>조회</div>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="테마 전환">
+        <span class="material-icons-round">dark_mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- 테이블 선택 카드: 원본데이터 -->
+    <section class="table-cards" id="subnav-raw">
+      <div class="table-card" data-table="@DN_SOCP_orderHistory">
+        <span class="card-name">DN_SOCP_orderHistory</span>
+        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
+      </div>
+      <div class="table-card" data-table="@DN_상품 공급상태 관리">
+        <span class="card-name">상품 공급상태 관리</span>
+        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
+      </div>
+      <div class="table-card" data-table="@SC_SKU ID & Option ID">
+        <span class="card-name">SKU ID & Option ID</span>
+        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
+      </div>
+      <div class="table-card" data-table="@SC_rocketStock">
+        <span class="card-name">rocketStock</span>
+        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
+      </div>
+    </section>
+
+    <!-- 테이블 선택 카드: 조회 -->
+    <section class="table-cards" id="subnav-lookup" style="display:none;">
+      <div class="table-card" data-table="skuList">
+        <span class="card-name">skuList</span>
+        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
+      </div>
+    </section>
+
+    <!-- 툴바 -->
+    <section class="toolbar" id="toolbar" style="display:none;">
+      <!-- 좌: 검색 (컬럼 선택 → 연산자 → 값) -->
+      <div class="toolbar-group filter-group">
+        <div class="filter-select-wrap">
+          <select id="filterCol" class="filter-select" title="검색할 컬럼">
+            <option value="">컬럼 선택...</option>
+          </select>
+        </div>
+        <div class="filter-select-wrap">
+          <select id="filterOp" class="filter-select" title="조건" disabled></select>
+        </div>
+        <input type="text" id="filterVal" class="filter-val" placeholder="값 입력..." disabled />
+        <button class="btn-primary" id="searchBtn"><span class="material-icons-round btn-ico">search</span>검색</button>
+        <button class="icon-btn" id="clearSearchBtn" title="초기화"><span class="material-icons-round">close</span></button>
+      </div>
+      <!-- 우: 페이지 + 다운로드 -->
+      <div class="toolbar-group">
+        <div class="page-size-wrap">
+          <select id="pageSizeSel">
+            <option value="50">50행</option>
+          <option value="100">100행</option>
+            <option value="200">200행</option>
+            <option value="500">500행</option>
+            <option value="1000">1000행</option>
+          </select>
+        </div>
+        <div class="pager">
+          <button class="icon-btn" id="prevBtn" title="이전"><span class="material-icons-round">chevron_left</span></button>
+          <span id="pageInfo" class="page-info"></span>
+          <button class="icon-btn" id="nextBtn" title="다음"><span class="material-icons-round">chevron_right</span></button>
+        </div>
+        <div class="calc-wrap" id="calcWrap" style="display:none;">
+          <button class="btn-outline" id="calcBtn"><span class="material-icons-round btn-ico">functions</span>계산 컬럼</button>
+          <div class="calc-panel" id="calcPanel"></div>
+        </div>
+        <div class="cols-wrap">
+          <button class="btn-outline" id="colsBtn"><span class="material-icons-round btn-ico">view_column</span>컬럼</button>
+          <div class="cols-panel" id="colsPanel"></div>
+        </div>
+        <div class="csv-wrap">
+          <button class="btn-outline" id="downloadBtn"><span class="material-icons-round btn-ico">download</span>CSV</button>
+          <div class="csv-panel" id="csvPanel"></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="status" id="status">테이블을 선택하면 데이터가 여기에 표시됩니다.</p>
+    <section class="table-wrap" id="tableWrap" style="display:none;"></section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

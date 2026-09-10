@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Environment variables and local Vercel configuration
+.env
+.env.*
+!.env.example
+.vercel/
+.claude/
+.agents/
+
+# Build output and coverage
+.next/
+dist/
+build/
+out/
+coverage/
+
+# Logs, temporary files, and operating-system files
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# Local exports, archives, and data snapshots not required by the deployed app
+*.zip
+/new.json
+/old.json
+/LoginPage.png
