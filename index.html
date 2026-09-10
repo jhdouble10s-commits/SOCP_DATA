@@ -27,6 +27,7 @@
       <nav class="tabs">
         <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span>원본데이터</div>
         <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span>조회</div>
+        <div class="tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span>바코드 라벨</div>
       </nav>
     </div>
     <div class="topbar-right">
@@ -64,6 +65,11 @@
         <span class="card-name">skuList</span>
         <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
       </div>
+    </section>
+
+    <!-- 바코드 라벨 생성기 -->
+    <section class="barcode-view" id="barcodeView" style="display:none;">
+      <iframe src="barcode.html" title="바코드 라벨 PNG 생성기"></iframe>
     </section>
 
     <!-- 툴바 -->

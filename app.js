@@ -1846,20 +1846,23 @@ downloadBtn.addEventListener("click", e => {
 csvPanel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", () => csvPanel.classList.remove("open"));
 
-// 상단 탭(원본데이터 / 조회) 전환
+// 상단 탭(원본데이터 / 조회 / 바코드 라벨) 전환
 const subnavByView = { raw: document.getElementById("subnav-raw"), lookup: document.getElementById("subnav-lookup") };
+const barcodeView = document.getElementById("barcodeView");
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     if (tab.classList.contains("active")) return;
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     Object.entries(subnavByView).forEach(([view, el]) => { el.style.display = view === tab.dataset.view ? "flex" : "none"; });
+    const isBarcodeView = tab.dataset.view === "barcode";
+    barcodeView.style.display = isBarcodeView ? "block" : "none";
     document.querySelectorAll(".table-card").forEach(i => i.classList.remove("active"));
     currentTable = null;
     toolbar.style.display = "none";
     tableWrap.style.display = "none";
-    status.style.display = "block";
-    status.textContent = "테이블을 선택하면 데이터가 여기에 표시됩니다.";
+    status.style.display = isBarcodeView ? "none" : "block";
+    if (!isBarcodeView) status.textContent = "테이블을 선택하면 데이터가 여기에 표시됩니다.";
   });
 });
 
