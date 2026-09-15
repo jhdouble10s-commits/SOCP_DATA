@@ -28,6 +28,7 @@
         <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span>원본데이터</div>
         <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span>조회</div>
         <div class="tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span>바코드 라벨</div>
+        <div class="tab" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span>이미지 파일명 변경</div>
       </nav>
     </div>
     <div class="topbar-right">
@@ -70,6 +71,11 @@
     <!-- 바코드 라벨 생성기 -->
     <section class="barcode-view" id="barcodeView" style="display:none;">
       <iframe src="barcode.html" title="바코드 라벨 PNG 생성기"></iframe>
+    </section>
+
+    <!-- 이미지 파일명 일괄 변경기 -->
+    <section class="barcode-view" id="imageNameChangeView" style="display:none;">
+      <iframe src="imageNameChange.html" title="이미지 파일명 일괄 변경기"></iframe>
     </section>
 
     <!-- 툴바 -->

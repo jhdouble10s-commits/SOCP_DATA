@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>이미지 일괄 파일명 변경</title>
+  <style>
+    :root { --ink:#172033; --muted:#65718a; --line:#dce3ee; --blue:#2563eb; --soft:#f4f7fb; --warn:#b45309; }
+    * { box-sizing:border-box; } body { margin:0; background:#f7f9fc; color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:0 auto; padding:44px 22px 64px; }
+    h1 { font-size:30px; margin:0 0 6px; } .intro { color:var(--muted); margin:0 0 28px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 5px 20px #1322450a; margin-bottom:16px; }
+    .drop { display:flex; min-height:146px; align-items:center; justify-content:center; flex-direction:column; gap:8px; border:2px dashed #aebdd3; border-radius:12px; background:#fafcff; cursor:pointer; text-align:center; }
+    .drop.drag { border-color:var(--blue); background:#eff6ff; } .drop b { font-size:18px; } .hint { color:var(--muted); font-size:13px; }
+    input[type=file] { display:none; } .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; } label { display:block; color:#44506a; font-size:13px; font-weight:650; }
+    input, select, textarea { width:100%; border:1px solid #bdc8d8; border-radius:8px; padding:9px 10px; margin-top:5px; background:#fff; color:var(--ink); font:inherit; }
+    textarea { min-height:132px; resize:vertical; }
+    .check { display:flex; align-items:center; gap:8px; margin-top:16px; font-size:14px; color:#44506a; cursor:pointer; } .check input { width:auto; margin:0; }
+    button { border:0; border-radius:8px; padding:10px 14px; background:var(--blue); color:#fff; font:inherit; font-weight:700; cursor:pointer; } button:disabled { background:#a6b2c5; cursor:not-allowed; } button.secondary { background:#e8eef8; color:#24406b; }
+    .bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; } .bar span { color:var(--muted); }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; } table { width:100%; border-collapse:collapse; min-width:660px; } th,td { padding:11px 13px; text-align:left; border-bottom:1px solid #edf0f5; } th { background:#f7f9fc; color:#516078; font-size:13px; } tr:last-child td { border-bottom:0; } .thumb { width:42px; height:42px; object-fit:cover; border-radius:6px; background:#eef2f7; vertical-align:middle; margin-right:9px; } .new { color:#0759c8; font-weight:650; } .error { color:#b42318; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; align-items:center; } .notice { color:var(--warn); font-size:13px; }
+    @media (max-width:760px) { main { padding:28px 14px; } .grid { grid-template-columns:1fr 1fr; } .card { padding:16px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>이미지 일괄 파일명 변경</h1>
+    <p class="intro">이미지는 업로드되지 않습니다. 이 브라우저 안에서 이름만 바꾼 뒤 다운로드합니다.</p>
+    <section class="card">
+      <label class="drop" id="dropZone" for="files"><b>이미지 파일을 선택하거나 여기로 끌어오세요</b><span class="hint">JPG, PNG, WEBP, GIF 등 · 여러 파일 선택 가능</span></label>
+      <input id="files" type="file" accept="image/*" multiple />
+    </section>
+    <section class="card">
+      <div class="bar"><strong>엑셀로 파일명 지정 <span class="hint">(선택)</span></strong><span id="excelSummary">엑셀을 선택하지 않으면 아래 수동 규칙을 사용합니다.</span></div>
+      <label class="drop" id="excelDropZone" for="excelFile"><b>파일명 목록 엑셀을 선택하거나 여기로 끌어오세요</b><span class="hint">A열: 변경 전 파일명 · B열: 변경 후 파일명 · 첫 번째 행은 제목으로 자동 제외</span></label>
+      <input id="excelFile" type="file" accept=".xlsx,.xls,.csv" />
+    </section>
+    <section class="card">
+      <div class="bar"><strong>복사·붙여넣기로 파일명 지정 <span class="hint">(선택)</span></strong><span class="hint">엑셀 두 열을 복사해 그대로 붙여넣을 수 있습니다.</span></div>
+      <label>변경 전 파일명과 변경 후 파일명을 탭(Tab)으로 구분해 한 줄씩 붙여넣어 주세요.
+        <textarea id="pasteMap" placeholder="변경 전 파일명	변경 후 파일명&#10;product_01.jpg	new-product-01&#10;product_02.png	new-product-02"></textarea>
+      </label>
+      <div class="actions"><button id="applyPaste">붙여넣은 목록 적용</button><span class="hint" id="pasteSummary"></span></div>
+    </section>
+    <section class="card">
+      <div class="grid">
+        <label>앞에 붙일 이름<input id="prefix" placeholder="예: 상품A_" /></label>
+        <label>뒤에 붙일 이름<input id="suffix" placeholder="예: _상세" /></label>
+        <label>찾을 텍스트<input id="findText" placeholder="예: old" /></label>
+        <label>바꿀 텍스트<input id="replaceText" placeholder="예: new" /></label>
+        <label>번호 시작<input id="start" type="number" min="0" value="1" /></label>
+        <label>번호 자릿수<select id="digits"><option value="0">번호 없음</option><option value="1">1자리 (1, 2)</option><option value="2" selected>2자리 (01, 02)</option><option value="3">3자리 (001, 002)</option><option value="4">4자리 (0001, 0002)</option></select></label>
+        <label>번호 위치<select id="numberPosition"><option value="end">이름 끝</option><option value="start">이름 앞</option></select></label>
+        <label>구분 기호<input id="separator" value="_" maxlength="5" /></label>
+      </div>
+      <label class="check"><input id="keepOriginal" type="checkbox" checked /> 기존 파일명도 유지하기 (앞/뒤 텍스트와 번호를 추가)</label>
+    </section>
+    <section class="card">
+      <div class="bar"><strong>미리보기</strong><span id="summary">파일을 선택해 주세요.</span></div>
+      <div class="table-wrap"><table><thead><tr><th>원본 파일</th><th>변경될 파일명</th><th>상태</th></tr></thead><tbody id="rows"><tr><td colspan="3" class="hint">선택한 이미지가 여기에 표시됩니다.</td></tr></tbody></table></div>
+      <div class="actions"><button id="download" disabled>변경된 이름으로 ZIP 다운로드</button><button id="clear" class="secondary" disabled>초기화</button><span class="notice" id="notice"></span></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const controls = ['prefix','suffix','findText','replaceText','start','digits','numberPosition','separator','keepOriginal'].map($);
+    let selected = [], nameMap = new Map(), mapError = '';
+    const base = name => name.replace(/\.[^.]+$/, '');
+    const ext = name => (name.match(/(\.[^.]+)$/)?.[1] || '');
+    const escape = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const normalize = name => String(name || '').trim().toLocaleLowerCase();
+    function mappedName(file) {
+      const full = normalize(file.name), stem = normalize(base(file.name));
+      return nameMap.get(full) ?? nameMap.get(stem) ?? null;
+    }
+    function setMap(entries, source, duplicates = 0) {
+      nameMap = entries;
+      mapError = duplicates ? `${source}에 변경 전 파일명이 중복된 행 ${duplicates}개가 있습니다. 마지막 행을 적용합니다.` : '';
+      $('excelSummary').textContent = `${source}에서 ${nameMap.size}개 이름 변경 규칙을 불러왔습니다. ${source} 매칭이 수동 규칙보다 우선합니다.`;
+      $('pasteSummary').textContent = nameMap.size ? `${nameMap.size}개 규칙 적용됨` : '';
+      render();
+    }
+    function outputName(file, i) {
+      const mapped = mappedName(file);
+      if (mapped) return base(mapped) + ext(file.name);
+      let name = base(file.name), original = name;
+      const find = $('findText').value;
+      if (find) name = name.split(find).join($('replaceText').value);
+      if (!$('keepOriginal').checked) name = find ? name : '';
+      const p = $('prefix').value, s = $('suffix').value, sep = $('separator').value;
+      const digits = Number($('digits').value), n = String(Number($('start').value || 0) + i).padStart(digits, '0');
+      const parts = [p, name, s].filter(Boolean);
+      let result = parts.join(sep);
+      if (digits) result = $('numberPosition').value === 'start' ? [n,result].filter(Boolean).join(sep) : [result,n].filter(Boolean).join(sep);
+      return (result || original) + ext(file.name);
+    }
+    function render() {
+      const names = selected.map(outputName), used = new Set();
+      const rows = selected.map((file,i) => {
+        const changed = names[i], duplicate = used.has(changed.toLowerCase()); used.add(changed.toLowerCase());
+        const mapped = mappedName(file);
+        const url = URL.createObjectURL(file);
+        return `<tr><td><img class="thumb" src="${url}" alt="" />${escape(file.name)}</td><td class="new">${escape(changed)}</td><td class="${duplicate?'error':''}">${duplicate ? '중복 파일명' : (mapped ? '엑셀 매칭' : '수동 규칙')}</td></tr>`;
+      });
+      $('rows').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="3" class="hint">선택한 이미지가 여기에 표시됩니다.</td></tr>';
+      const hasDuplicate = names.some((n,i) => names.findIndex(x => x.toLowerCase() === n.toLowerCase()) !== i);
+      $('summary').textContent = selected.length ? `${selected.length}개 파일 선택됨` : '파일을 선택해 주세요.';
+      $('download').disabled = !selected.length || hasDuplicate;
+      $('clear').disabled = !selected.length;
+      $('notice').textContent = mapError || (hasDuplicate ? '중복되는 파일명이 있습니다. 규칙을 수정해 주세요.' : (selected.length ? '변경된 이미지가 ZIP 파일 한 개로 다운로드됩니다.' : ''));
+    }
+    function addFiles(files) { selected = [...selected, ...[...files].filter(f => f.type.startsWith('image/'))]; render(); }
+    $('files').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+    controls.forEach(c => c.addEventListener('input', render)); controls.forEach(c => c.addEventListener('change', render));
+    ['dragenter','dragover'].forEach(e => $('dropZone').addEventListener(e, ev => { ev.preventDefault(); $('dropZone').classList.add('drag'); }));
+    ['dragleave','drop'].forEach(e => $('dropZone').addEventListener(e, ev => { ev.preventDefault(); $('dropZone').classList.remove('drag'); }));
+    $('dropZone').addEventListener('drop', e => addFiles(e.dataTransfer.files));
+    function loadExcel(file) {
+      if (!window.XLSX) { mapError = '엑셀 읽기 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.'; render(); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const book = XLSX.read(e.target.result, {type:'array'});
+          const sheet = book.Sheets[book.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:'', raw:false});
+          const next = new Map(), duplicates = new Set();
+          rows.slice(1).forEach(row => { const before = normalize(row[0]), after = String(row[1] ?? '').trim(); if (!before || !after) return; if (next.has(before)) duplicates.add(before); next.set(before, after); });
+          setMap(next, '엑셀', duplicates.size);
+        } catch (err) { nameMap = new Map(); mapError = '엑셀을 읽지 못했습니다. A열과 B열이 있는 .xlsx, .xls 또는 .csv 파일인지 확인해 주세요.'; render(); }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+    $('excelFile').addEventListener('change', e => { if(e.target.files[0]) loadExcel(e.target.files[0]); e.target.value=''; });
+    ['dragenter','dragover'].forEach(e => $('excelDropZone').addEventListener(e, ev => { ev.preventDefault(); $('excelDropZone').classList.add('drag'); }));
+    ['dragleave','drop'].forEach(e => $('excelDropZone').addEventListener(e, ev => { ev.preventDefault(); $('excelDropZone').classList.remove('drag'); }));
+    $('excelDropZone').addEventListener('drop', e => { if(e.dataTransfer.files[0]) loadExcel(e.dataTransfer.files[0]); });
+    $('applyPaste').addEventListener('click', () => {
+      const lines = $('pasteMap').value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      const next = new Map(), duplicates = new Set();
+      lines.forEach((line, index) => {
+        const columns = line.split('\t');
+        const before = normalize(columns[0]), after = String(columns.slice(1).join('\t') || '').trim();
+        const header = index === 0 && /변경\s*전|old|before/i.test(before) && /변경\s*후|new|after/i.test(after);
+        if (!header && before && after) { if (next.has(before)) duplicates.add(before); next.set(before, after); }
+      });
+      if (!next.size) { mapError = '붙여넣은 내용에서 탭으로 구분된 “변경 전 파일명 / 변경 후 파일명” 행을 찾지 못했습니다.'; render(); return; }
+      setMap(next, '붙여넣은 목록', duplicates.size);
+    });
+    $('clear').addEventListener('click', () => { selected = []; nameMap = new Map(); mapError = ''; $('pasteMap').value = ''; $('excelSummary').textContent = '엑셀을 선택하지 않으면 아래 수동 규칙을 사용합니다.'; $('pasteSummary').textContent = ''; render(); });
+    $('download').addEventListener('click', async () => {
+      if (!window.JSZip) { $('notice').textContent = 'ZIP 생성 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.'; return; }
+      $('download').disabled = true; $('notice').textContent = 'ZIP 파일을 만드는 중입니다…';
+      try {
+        const zip = new JSZip();
+        selected.forEach((file, i) => zip.file(outputName(file, i), file));
+        const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}}, meta => { $('notice').textContent = `ZIP 파일을 만드는 중입니다… ${Math.round(meta.percent)}%`; });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'renamed-images.zip'; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        $('notice').textContent = 'ZIP 다운로드를 완료했습니다.';
+      } catch (err) { $('notice').textContent = 'ZIP 생성 중 오류가 발생했습니다. 파일 수나 용량을 줄여 다시 시도해 주세요.'; }
+      $('download').disabled = false;
+    });
+  </script>
+</body>
+</html>
