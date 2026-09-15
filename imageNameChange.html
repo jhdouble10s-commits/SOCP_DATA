@@ -59,7 +59,7 @@
     <section class="card">
       <div class="bar"><strong>미리보기</strong><span id="summary">파일을 선택해 주세요.</span></div>
       <div class="table-wrap"><table><thead><tr><th>원본 파일</th><th>변경될 파일명</th><th>상태</th></tr></thead><tbody id="rows"><tr><td colspan="3" class="hint">선택한 이미지가 여기에 표시됩니다.</td></tr></tbody></table></div>
-      <div class="actions"><button id="download" disabled>변경된 이름으로 ZIP 다운로드</button><button id="clear" class="secondary" disabled>초기화</button><span class="notice" id="notice"></span></div>
+      <div class="actions"><button id="download" disabled>변경된 이름으로 ZIP 다운로드</button><button id="downloadNames" class="secondary" disabled>파일명 목록 엑셀 다운로드</button><button id="clear" class="secondary" disabled>초기화</button><span class="notice" id="notice"></span></div>
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -109,6 +109,7 @@
       const hasDuplicate = names.some((n,i) => names.findIndex(x => x.toLowerCase() === n.toLowerCase()) !== i);
       $('summary').textContent = selected.length ? `${selected.length}개 파일 선택됨` : '파일을 선택해 주세요.';
       $('download').disabled = !selected.length || hasDuplicate;
+      $('downloadNames').disabled = !selected.length;
       $('clear').disabled = !selected.length;
       $('notice').textContent = mapError || (hasDuplicate ? '중복되는 파일명이 있습니다. 규칙을 수정해 주세요.' : (selected.length ? '변경된 이미지가 ZIP 파일 한 개로 다운로드됩니다.' : ''));
     }
@@ -148,6 +149,15 @@
       });
       if (!next.size) { mapError = '붙여넣은 내용에서 탭으로 구분된 “변경 전 파일명 / 변경 후 파일명” 행을 찾지 못했습니다.'; render(); return; }
       setMap(next, '붙여넣은 목록', duplicates.size);
+    });
+    $('downloadNames').addEventListener('click', () => {
+      if (!window.XLSX) { $('notice').textContent = '엑셀 생성 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.'; return; }
+      const rows = [['변경 전 파일명', '변경 후 파일명'], ...selected.map((file, i) => [file.name, outputName(file, i)])];
+      const sheet = XLSX.utils.aoa_to_sheet(rows);
+      sheet['!cols'] = [{ wch: 40 }, { wch: 40 }];
+      const book = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(book, sheet, '파일명 변경 목록');
+      XLSX.writeFile(book, 'image-filename-change-list.xlsx');
     });
     $('clear').addEventListener('click', () => { selected = []; nameMap = new Map(); mapError = ''; $('pasteMap').value = ''; $('excelSummary').textContent = '엑셀을 선택하지 않으면 아래 수동 규칙을 사용합니다.'; $('pasteSummary').textContent = ''; render(); });
     $('download').addEventListener('click', async () => {
