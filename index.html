@@ -29,6 +29,7 @@
         <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span>조회</div>
         <div class="tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span>바코드 라벨</div>
         <div class="tab" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span>이미지 파일명 변경</div>
+        <div class="tab" data-view="image-download"><span class="material-icons-round tab-icon">download_for_offline</span>이미지 일괄 다운로드</div>
       </nav>
     </div>
     <div class="topbar-right">
@@ -76,6 +77,11 @@
     <!-- 이미지 파일명 일괄 변경기 -->
     <section class="barcode-view" id="imageNameChangeView" style="display:none;">
       <iframe src="imageNameChange.html?v=2" title="이미지 파일명 일괄 변경기"></iframe>
+    </section>
+
+    <!-- 이미지 URL 일괄 다운로드기 -->
+    <section class="barcode-view" id="imageDownloadView" style="display:none;">
+      <iframe src="image-download.html" title="이미지 일괄 다운로드"></iframe>
     </section>
 
     <!-- 툴바 -->

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>이미지 일괄 다운로드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="stylesheet" href="image-download.css" />
+</head>
+<body>
+  <main class="download-tool">
+    <div class="heading"><div><h1>이미지 일괄 다운로드</h1><p>엑셀 A열의 바코드로 B열 이미지 URL을 ZIP 파일 하나로 저장합니다.</p></div><button id="resetBtn" class="btn-outline" disabled><span class="material-icons-round">restart_alt</span>초기화</button></div>
+    <section class="card">
+      <label id="dropZone" class="drop-zone" for="fileInput"><span class="material-icons-round">upload_file</span><strong>엑셀 파일을 선택하거나 여기로 끌어오세요</strong><span>.xlsx, .xls, .csv · 1행 헤더 제외 · A열 바코드 / B열 제품 이미지 URL</span><em>파일 선택</em></label>
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+      <p class="notice"><span class="material-icons-round">info</span>외부 URL 접근 제한, 로그인 필요 이미지 및 쿠팡 등 차단된 서버의 이미지는 기술적으로 다운로드할 수 없을 수 있습니다.</p>
+    </section>
+    <section class="card" id="previewCard" hidden>
+      <div class="summary"><div><b id="totalCount">0</b><span>총 데이터 행</span></div><div class="ok"><b id="targetCount">0</b><span>다운로드 대상</span></div><div class="muted"><b id="excludedCount">0</b><span>제외된 행</span></div><div class="warn" id="duplicateBox" hidden><b id="duplicateCount">0</b><span>중복 바코드</span></div></div>
+      <p id="duplicateNote" class="warning" hidden></p>
+      <div class="table-wrap"><table><thead><tr><th>바코드</th><th>이미지 URL</th><th>상태</th></tr></thead><tbody id="previewRows"></tbody></table></div>
+      <div class="actions"><button id="startBtn" class="btn-primary"><span class="material-icons-round">folder_zip</span>ZIP으로 전체 다운로드</button><button id="zipBtn" class="btn-outline" disabled><span class="material-icons-round">download</span>ZIP 다운로드</button><button id="failedBtn" class="btn-outline" disabled><span class="material-icons-round">file_download</span>실패 목록 CSV</button></div>
+    </section>
+    <section class="card" id="progressCard" hidden>
+      <div class="progress-title"><strong id="progressText">다운로드 준비 중</strong><span id="progressCount">0 / 0</span></div><div class="progress-track"><i id="progressBar"></i></div><p class="current">현재 처리: <b id="currentBarcode">-</b></p>
+      <div id="resultBox" class="result" hidden></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="image-download.js"></script>
+</body>
+</html>

@@ -1850,15 +1850,17 @@ document.addEventListener("click", () => csvPanel.classList.remove("open"));
 const subnavByView = { raw: document.getElementById("subnav-raw"), lookup: document.getElementById("subnav-lookup") };
 const barcodeView = document.getElementById("barcodeView");
 const imageNameChangeView = document.getElementById("imageNameChangeView");
+const imageDownloadView = document.getElementById("imageDownloadView");
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     if (tab.classList.contains("active")) return;
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     Object.entries(subnavByView).forEach(([view, el]) => { el.style.display = view === tab.dataset.view ? "flex" : "none"; });
-    const isToolView = ["barcode", "image-name-change"].includes(tab.dataset.view);
+    const isToolView = ["barcode", "image-name-change", "image-download"].includes(tab.dataset.view);
     barcodeView.style.display = tab.dataset.view === "barcode" ? "block" : "none";
     imageNameChangeView.style.display = tab.dataset.view === "image-name-change" ? "block" : "none";
+    imageDownloadView.style.display = tab.dataset.view === "image-download" ? "block" : "none";
     document.querySelectorAll(".table-card").forEach(i => i.classList.remove("active"));
     currentTable = null;
     toolbar.style.display = "none";
