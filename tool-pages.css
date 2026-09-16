@@ -27,4 +27,18 @@ html[data-theme="dark"] .tool-page .privacy { background:#183528; border-color:#
 html[data-theme="dark"] .tool-page .drop, html[data-theme="dark"] .tool-page .drop-zone { background:rgba(34,35,47,.78); border-color:#44485e; }
 html[data-theme="dark"] .tool-page .drop:hover, html[data-theme="dark"] .tool-page .drop-zone:hover, html[data-theme="dark"] .tool-page .drop.drag, html[data-theme="dark"] .tool-page .drop-zone.drag { background:var(--tool-soft); }
 
+/* Barcode label editor: a quieter dark workspace keeps white labels in focus. */
+.tool-page .settings { padding-right:18px; border-right:1px solid var(--tool-line); }
+.tool-page .settings label { border-color:var(--tool-line); }
+.tool-page .settings input, .tool-page .settings select { border-radius:8px; }
+.tool-page .preview canvas { border-radius:9px; }
+html[data-theme="dark"] .tool-page .settings { border-color:#37394a; }
+html[data-theme="dark"] .tool-page .settings label { border-color:#303241; color:#c7c9d5; }
+html[data-theme="dark"] .tool-page .settings input, html[data-theme="dark"] .tool-page .settings select { background:#202230; border-color:#393c50; color:#f0f1f7; box-shadow:none; }
+html[data-theme="dark"] .tool-page .settings input:hover, html[data-theme="dark"] .tool-page .settings select:hover { border-color:#706be0; }
+html[data-theme="dark"] .tool-page .settings input:focus, html[data-theme="dark"] .tool-page .settings select:focus { border-color:#8f89ff!important; box-shadow:0 0 0 3px rgba(143,137,255,.16)!important; }
+html[data-theme="dark"] .tool-page .preview canvas { box-shadow:0 0 0 1px rgba(255,255,255,.1), 0 12px 28px rgba(0,0,0,.2); }
+html[data-theme="dark"] .tool-page .split.card { box-shadow:0 1px 0 rgba(255,255,255,.045), 0 10px 25px rgba(0,0,0,.14); }
+@media (max-width:700px) { .tool-page .settings { padding-right:0; border-right:0; border-bottom:1px solid var(--tool-line); padding-bottom:18px; } }
+
 @media (max-width:760px) { .tool-page main, .tool-page .download-tool { padding-top:30px; padding-bottom:42px; } .tool-page .card { border-radius:16px; } }
