@@ -34,7 +34,7 @@ html[data-theme="dark"] .tool-page .drop:hover, html[data-theme="dark"] .tool-pa
 .tool-page .preview canvas { border-radius:9px; }
 html[data-theme="dark"] .tool-page .settings { border-color:#37394a; }
 html[data-theme="dark"] .tool-page .settings label { border-color:#303241; color:#c7c9d5; }
-html[data-theme="dark"] .tool-page .settings input, html[data-theme="dark"] .tool-page .settings select { background:#202230; border-color:#393c50; color:#f0f1f7; box-shadow:none; }
+html[data-theme="dark"] .tool-page .settings input, html[data-theme="dark"] .tool-page .settings select { background:#202230; border:1px solid #393c50; color:#f0f1f7; box-shadow:none; }
 html[data-theme="dark"] .tool-page .settings input:hover, html[data-theme="dark"] .tool-page .settings select:hover { border-color:#706be0; }
 html[data-theme="dark"] .tool-page .settings input:focus, html[data-theme="dark"] .tool-page .settings select:focus { border-color:#8f89ff!important; box-shadow:0 0 0 1px rgba(143,137,255,.28)!important; }
 html[data-theme="dark"] .tool-page .preview canvas { box-shadow:0 0 0 1px rgba(255,255,255,.1), 0 3px 9px rgba(0,0,0,.15); }
