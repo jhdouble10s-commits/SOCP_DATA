@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+:root { --tool-bg:#f5f7ff; --tool-ink:#182033; --tool-muted:#667085; --tool-line:#e4e8f2; --tool-card:rgba(255,255,255,.9); --tool-accent:#665df5; --tool-accent-2:#8b83ff; --tool-soft:#f0efff; --tool-shadow:0 18px 48px rgba(35,42,80,.08); }
+html[data-theme="dark"] { --tool-bg:#10111a; --tool-ink:#f1f2fa; --tool-muted:#a6a9b9; --tool-line:#2c2f3e; --tool-card:rgba(25,26,36,.94); --tool-accent:#938cff; --tool-accent-2:#b0aaff; --tool-soft:#282541; --tool-shadow:0 18px 48px rgba(0,0,0,.25); }
+
+.tool-page { min-height:100vh; background:radial-gradient(circle at 92% 0, rgba(139,131,255,.16), transparent 31rem), radial-gradient(circle at 0 32%, rgba(91,196,255,.11), transparent 24rem), var(--tool-bg); color:var(--tool-ink); font-family:"DM Sans","Noto Sans KR",system-ui,sans-serif; }
+.tool-page main, .tool-page .download-tool { position:relative; max-width:1180px; padding-top:52px; padding-bottom:72px; }
+.tool-page h1 { letter-spacing:-.055em; font-size:clamp(28px,4vw,38px); line-height:1.15; }
+.tool-page h2, .tool-page strong { letter-spacing:-.025em; }
+.tool-page header, .tool-page .heading { position:relative; padding:0 2px 20px; margin-bottom:8px; }
+.tool-page header > div > p, .tool-page .heading p, .tool-page .intro { font-size:15px; margin-top:9px; }
+.eyebrow { display:inline-flex; align-items:center; gap:7px; margin:0 0 10px; color:var(--tool-accent); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+.eyebrow::before { content:""; width:19px; height:2px; border-radius:9px; background:currentColor; }
+.tool-page .card { border:1px solid var(--tool-line); background:var(--tool-card); border-radius:20px; box-shadow:var(--tool-shadow); padding:22px; }
+.tool-page .drop, .tool-page .drop-zone { position:relative; overflow:hidden; border:1.5px dashed #aeb8d0; border-radius:15px; background:linear-gradient(145deg,rgba(245,247,255,.92),rgba(255,255,255,.5)); transition:.2s ease; }
+.tool-page .drop::before, .tool-page .drop-zone::before { content:"↥"; display:grid; place-items:center; width:38px; height:38px; margin-bottom:4px; border-radius:12px; background:var(--tool-soft); color:var(--tool-accent); font-size:23px; font-weight:600; }
+.tool-page .drop-zone > .material-icons-round { display:none; }
+.tool-page .drop:hover, .tool-page .drop-zone:hover, .tool-page .drop.drag, .tool-page .drop-zone.drag { border-color:var(--tool-accent); background:var(--tool-soft); transform:translateY(-1px); }
+.tool-page button, .tool-page .btn-primary, .tool-page .btn-outline { border-radius:10px; font-family:inherit; transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.tool-page button:hover:not(:disabled), .tool-page .btn-primary:hover:not(:disabled), .tool-page .btn-outline:hover:not(:disabled) { transform:translateY(-1px); }
+.tool-page .zip, .tool-page #download, .tool-page .btn-primary { background:linear-gradient(135deg,var(--tool-accent),var(--tool-accent-2)); box-shadow:0 8px 18px rgba(102,93,245,.22); }
+.tool-page input:focus, .tool-page select:focus, .tool-page textarea:focus { outline:none; border-color:var(--tool-accent)!important; box-shadow:0 0 0 3px rgba(102,93,245,.13); }
+.tool-page .table-wrap, .tool-page .table { border-radius:13px; }
+.tool-page th { background:rgba(100,93,245,.055)!important; }
+.tool-page .privacy { border:1px solid #bde8d0; border-radius:999px; background:#eefaf3; color:#168055; font-weight:600; }
+html[data-theme="dark"] .tool-page .privacy { background:#183528; border-color:#286345; color:#8ae2b2; }
+html[data-theme="dark"] .tool-page .drop, html[data-theme="dark"] .tool-page .drop-zone { background:rgba(34,35,47,.78); border-color:#44485e; }
+html[data-theme="dark"] .tool-page .drop:hover, html[data-theme="dark"] .tool-page .drop-zone:hover, html[data-theme="dark"] .tool-page .drop.drag, html[data-theme="dark"] .tool-page .drop-zone.drag { background:var(--tool-soft); }
+
+@media (max-width:760px) { .tool-page main, .tool-page .download-tool { padding-top:30px; padding-bottom:42px; } .tool-page .card { border-radius:16px; } }
