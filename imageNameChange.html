@@ -21,7 +21,14 @@
     .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; } table { width:100%; border-collapse:collapse; min-width:660px; } th,td { padding:11px 13px; text-align:left; border-bottom:1px solid #edf0f5; } th { background:#f7f9fc; color:#516078; font-size:13px; } tr:last-child td { border-bottom:0; } .thumb { width:42px; height:42px; object-fit:cover; border-radius:6px; background:#eef2f7; vertical-align:middle; margin-right:9px; } .new { color:#0759c8; font-weight:650; } .error { color:#b42318; }
     .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; align-items:center; } .notice { color:var(--warn); font-size:13px; }
     @media (max-width:760px) { main { padding:28px 14px; } .grid { grid-template-columns:1fr 1fr; } .card { padding:16px; } }
+    html[data-theme="dark"] { --ink:#e5e7eb; --muted:#a8a8a8; --line:#303030; --blue:#818cf8; --soft:#222; --warn:#fbbf24; }
+    html[data-theme="dark"] body { background:#111; }
+    html[data-theme="dark"] .card, html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { background:#191919; color:var(--ink); border-color:var(--line); }
+    html[data-theme="dark"] .drop, html[data-theme="dark"] th { background:#222; border-color:#3a3a3a; }
+    html[data-theme="dark"] label, html[data-theme="dark"] .check, html[data-theme="dark"] th { color:#c5c5c5; }
+    html[data-theme="dark"] button.secondary { background:#292929; color:#c7d2fe; }
   </style>
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('socpTheme') || 'light');</script>
 </head>
 <body>
   <main>

@@ -1851,6 +1851,21 @@ const subnavByView = { raw: document.getElementById("subnav-raw"), lookup: docum
 const barcodeView = document.getElementById("barcodeView");
 const imageNameChangeView = document.getElementById("imageNameChangeView");
 const imageDownloadView = document.getElementById("imageDownloadView");
+const navToggle = document.getElementById("navToggle");
+const NAV_COLLAPSED_KEY = "socpSidebarCollapsed";
+
+function setSidebarCollapsed(collapsed) {
+  document.body.classList.toggle("sidebar-collapsed", collapsed);
+  navToggle.setAttribute("aria-expanded", String(!collapsed));
+  navToggle.querySelector(".material-icons-round").textContent = collapsed ? "menu" : "menu_open";
+}
+
+setSidebarCollapsed(localStorage.getItem(NAV_COLLAPSED_KEY) === "true");
+navToggle.addEventListener("click", () => {
+  const collapsed = !document.body.classList.contains("sidebar-collapsed");
+  localStorage.setItem(NAV_COLLAPSED_KEY, String(collapsed));
+  setSidebarCollapsed(collapsed);
+});
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     if (tab.classList.contains("active")) return;
@@ -1885,6 +1900,9 @@ const themeToggle = document.getElementById("themeToggle");
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
+  document.querySelectorAll(".barcode-view iframe").forEach(frame => {
+    try { frame.contentDocument.documentElement.setAttribute("data-theme", theme); } catch (_) { /* iframe is not ready yet */ }
+  });
   const icon = themeToggle && themeToggle.querySelector(".material-icons-round");
   if (icon) icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
   themeToggle && themeToggle.setAttribute("title", theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환");
@@ -1895,6 +1913,9 @@ if (!savedTheme) {
   savedTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 applyTheme(savedTheme);
+document.querySelectorAll(".barcode-view iframe").forEach(frame => {
+  frame.addEventListener("load", () => applyTheme(document.documentElement.getAttribute("data-theme") || "light"));
+});
 
 themeToggle && themeToggle.addEventListener("click", () => {
   const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";

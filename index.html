@@ -23,14 +23,8 @@
   <!-- 상단 네비게이션 -->
   <header class="topbar">
     <div class="topbar-left">
+      <button class="nav-toggle" id="navToggle" title="탭 메뉴 열기/닫기" aria-label="탭 메뉴 열기/닫기" aria-expanded="true"><span class="material-icons-round">menu</span></button>
       <div class="logo"><span class="logo-icon material-icons-round">radar</span>SOCP DATA VIEWER</div>
-      <nav class="tabs">
-        <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span>원본데이터</div>
-        <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span>조회</div>
-        <div class="tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span>바코드 라벨</div>
-        <div class="tab" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span>이미지 파일명 변경</div>
-        <div class="tab" data-view="image-download"><span class="material-icons-round tab-icon">download_for_offline</span>이미지 일괄 다운로드</div>
-      </nav>
     </div>
     <div class="topbar-right">
       <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="테마 전환">
@@ -38,6 +32,17 @@
       </button>
     </div>
   </header>
+
+  <aside class="sidebar" id="sidebar" aria-label="탭 메뉴">
+    <nav class="tabs">
+      <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span><span>원본데이터</span></div>
+      <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span><span>조회</span></div>
+      <div class="skills-title"><span class="material-icons-round">auto_awesome</span><span>Skills</span></div>
+      <div class="tab skill-tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span><span>바코드 라벨</span></div>
+      <div class="tab skill-tab" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span><span>이미지 파일명 변경</span></div>
+      <div class="tab skill-tab" data-view="image-download"><span class="material-icons-round tab-icon">download_for_offline</span><span>이미지 일괄 다운로드</span></div>
+    </nav>
+  </aside>
 
   <main class="content">
 
