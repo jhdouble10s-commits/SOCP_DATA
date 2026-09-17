@@ -9,7 +9,7 @@
 <style>.settings{min-height:650px}.settings #suffix{width:125px}.settings small{display:block;color:#64748b;font-size:11px;padding-top:8px}.paste-entry{margin-top:22px;padding-top:18px;border-top:1px solid #e4e8ee}.paste-entry label{display:block;margin-bottom:8px;font-size:13px;font-weight:bold;color:#334155}.paste-entry textarea{display:block;width:100%;resize:vertical;padding:10px;border:1px solid #b7c5d8;border-radius:8px;font:13px/1.45 Arial,"Malgun Gothic",sans-serif}.paste-entry button{margin-top:9px}html[data-theme=dark] .paste-entry{border-color:#303030}html[data-theme=dark] .paste-entry label{color:#e5e7eb}html[data-theme=dark] .paste-entry textarea{background:#191919;color:#e5e7eb;border-color:#303030}</style>
 <script>
 window.addEventListener('load', () => {
-  const defaults = {width:450,height:260,nameSize:22,nameLines:2,barcodeMargin:18,barcodeHeight:95,codeSize:22,topPadding:21,nameGap:25,codeGap:15,madeInChinaX:20,madeInChinaY:230,madeInChinaSize:20,ageNoticeX:250,ageNoticeY:230,ageNoticeSize:20};
+  const defaults = {width:450,height:260,nameSize:22,nameLines:2,barcodeMargin:18,barcodeHeight:95,codeSize:22,topPadding:20,nameGap:12,codeGap:15,madeInChinaX:20,madeInChinaY:230,madeInChinaSize:20,ageNoticeX:250,ageNoticeY:230,ageNoticeSize:20};
   const applyDefaults = () => Object.entries(defaults).forEach(([key, value]) => {
     const input = document.querySelector(`[data-k="${key}"]`);
     if (!input) return;
