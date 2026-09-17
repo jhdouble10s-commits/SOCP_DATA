@@ -21,6 +21,22 @@ window.addEventListener('load', () => {
   XLSX.utils.sheet_to_json = function (...args) {
     return sheetToJson.apply(this, args).map(row => Array.isArray(row) ? [row[1] || '', row[0] || '', ...row.slice(2)] : row);
   };
+  const fileInput = document.getElementById('file');
+  const legacyFileChange = fileInput.onchange;
+  fileInput.onchange = async event => {
+    const source = event.target.files[0];
+    if (!source || !/\.csv$/i.test(source.name)) return legacyFileChange(event);
+    // CSV를 UTF-8 BOM으로 정규화해 한글 제품명이 깨지지 않도록 한다.
+    const text = (await source.text()).replace(/^\uFEFF/, '');
+    const utf8BomFile = new File([`\uFEFF${text}`], source.name, {type:'text/csv;charset=utf-8'});
+    legacyFileChange({target:{files:[utf8BomFile]}});
+  };
+  document.getElementById('drop').ondrop = event => {
+    event.preventDefault();
+    event.currentTarget.classList.remove('drag');
+    const source = event.dataTransfer.files[0];
+    if (source) fileInput.onchange({target:{files:[source]}});
+  };
   document.getElementById('reset').onclick = () => {
     document.getElementById('suffix').value = '';
     applyDefaults();
@@ -31,8 +47,8 @@ window.addEventListener('load', () => {
     const first = text.split(/\r?\n/, 1)[0];
     const hasHeader = /바코드|barcode|제품명|product/i.test(first);
     const csvText = hasHeader ? text : `바코드 번호\t제품명\n${text}`;
-    const file = new File([csvText], 'pasted-barcode-data.csv', {type:'text/csv'});
-    document.getElementById('file').onchange({target:{files:[file]}});
+    const file = new File([`\uFEFF${csvText}`], 'pasted-barcode-data.csv', {type:'text/csv;charset=utf-8'});
+    fileInput.onchange({target:{files:[file]}});
   };
 });
 </script>
