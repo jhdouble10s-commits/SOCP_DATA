@@ -35,19 +35,22 @@
 
   <aside class="sidebar" id="sidebar" aria-label="탭 메뉴">
     <nav class="tabs">
-      <div class="tab active" data-view="raw"><span class="material-icons-round tab-icon">database</span><span>원본데이터</span></div>
-      <div class="tab" data-view="lookup"><span class="material-icons-round tab-icon">search</span><span>조회</span></div>
+      <button class="tab data-parent active" id="dataMenuToggle" type="button" aria-expanded="true"><span class="material-icons-round tab-icon">database</span><span>Data</span><span class="material-icons-round menu-chevron">expand_less</span></button>
+      <div class="data-submenu" id="dataSubmenu">
+        <button class="tab data-tab active" type="button" data-view="lookup"><span class="material-icons-round tab-icon">search</span><span>조회</span></button>
+        <button class="tab data-tab" type="button" data-view="raw"><span class="material-icons-round tab-icon">storage</span><span>원본데이터</span></button>
+      </div>
       <div class="skills-title"><span class="material-icons-round">auto_awesome</span><span>Skills</span></div>
-      <div class="tab skill-tab" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span><span>바코드 라벨</span></div>
-      <div class="tab skill-tab" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span><span>이미지 파일명 변경</span></div>
-      <div class="tab skill-tab" data-view="image-download"><span class="material-icons-round tab-icon">download_for_offline</span><span>이미지 일괄 다운로드</span></div>
+      <button class="tab skill-tab" type="button" data-view="barcode"><span class="material-icons-round tab-icon">qr_code_2</span><span>바코드 라벨</span></button>
+      <button class="tab skill-tab" type="button" data-view="image-name-change"><span class="material-icons-round tab-icon">drive_file_rename_outline</span><span>이미지 파일명 변경</span></button>
+      <button class="tab skill-tab" type="button" data-view="image-download"><span class="material-icons-round tab-icon">download_for_offline</span><span>이미지 일괄 다운로드</span></button>
     </nav>
   </aside>
 
   <main class="content">
 
     <!-- 테이블 선택 카드: 원본데이터 -->
-    <section class="table-cards" id="subnav-raw">
+    <section class="table-cards" id="subnav-raw" style="display:none;">
       <div class="table-card" data-table="@DN_SOCP_orderHistory">
         <span class="card-name">DN_SOCP_orderHistory</span>
         <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
@@ -66,12 +69,14 @@
       </div>
     </section>
 
-    <!-- 테이블 선택 카드: 조회 -->
-    <section class="table-cards" id="subnav-lookup" style="display:none;">
-      <div class="table-card" data-table="skuList">
-        <span class="card-name">skuList</span>
-        <button class="refresh-btn" title="새로고침"><span class="material-icons-round">refresh</span></button>
-      </div>
+    <section class="lookup-heading" id="lookupHeading">
+      <div><p class="eyebrow">DATA / 조회</p><h1>SKU 조회</h1></div>
+      <button class="refresh-btn lookup-refresh" id="lookupRefreshBtn" title="SKU 데이터 새로고침" aria-label="SKU 데이터 새로고침"><span class="material-icons-round">refresh</span></button>
+    </section>
+    <section class="kpi-summary" id="kpiSummary" aria-live="polite" style="display:none;">
+      <div class="kpi-item"><span>전체 SKU</span><strong id="totalSkuKpi">계산 중</strong></div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-item"><span>OPTION ID 없음</span><strong id="missingOptionKpi">계산 중</strong></div>
     </section>
 
     <!-- 바코드 라벨 생성기 -->

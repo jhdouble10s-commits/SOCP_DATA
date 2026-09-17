@@ -97,11 +97,17 @@ body::before {
   cursor: pointer;
   border: 1px solid transparent;
   color: var(--muted-2);
+  width: 100%; font-family: inherit; text-align: left; background: transparent;
   transition: all 0.2s;
 }
 .tab:hover { color: var(--text); background: var(--panel-2); transform: translateX(2px); }
 .tab.active { background: linear-gradient(135deg, var(--accent-soft), rgba(129,140,248,.06)); border-color: rgba(129,140,248,0.34); color: var(--accent-2); box-shadow: inset 3px 0 0 var(--accent); }
 .tab-icon { font-size: 18px; }
+.data-parent { font-weight: 700; color: var(--text-2); }
+.data-submenu { display: flex; flex-direction: column; gap: 3px; margin: 2px 0 4px 12px; padding-left: 8px; border-left: 1px solid var(--border); }
+.data-submenu[hidden] { display: none; }
+.data-tab { height: 40px; font-size: 13px; }
+.menu-chevron { margin-left: auto; font-size: 18px; color: var(--muted); }
 .skills-title { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.9px; text-transform:uppercase; margin:18px 10px 6px; }
 .skills-title .material-icons-round { font-size:16px; color:var(--accent-2); }
 .skill-tab { margin-left: 8px; }
@@ -147,6 +153,17 @@ body.sidebar-collapsed .content { margin-left: 0; }
   body:not(.sidebar-collapsed) .sidebar { transform: translateX(0); }
 }
 
+/* ===== Data navigation ===== */
+.lookup-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 18px; }
+.lookup-heading h1 { font-size: 22px; letter-spacing: -.55px; line-height: 1.2; }
+.eyebrow { margin-bottom: 5px; color: var(--accent-2); font-size: 11px; font-weight: 700; letter-spacing: .9px; }
+.lookup-refresh { flex: 0 0 auto; border: 1px solid var(--border); background: var(--panel-2); opacity: 1; }
+.kpi-summary { display: flex; align-items: center; gap: 24px; margin-bottom: 16px; padding: 12px 2px; border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border); }
+.kpi-item { display: flex; align-items: baseline; gap: 10px; }
+.kpi-item span { color: var(--muted-2); font-size: 12px; font-weight: 600; }
+.kpi-item strong { color: var(--text); font-size: 22px; letter-spacing: -.45px; }
+.kpi-divider { width: 1px; height: 26px; background: var(--border); }
+
 /* ===== Table Cards ===== */
 .table-cards { display: flex; gap: 12px; flex-wrap: wrap; }
 .table-card {
@@ -188,14 +205,11 @@ body.sidebar-collapsed .content { margin-left: 0; }
 
 /* ===== Toolbar ===== */
 .toolbar {
-  margin-top: 24px;
+  margin-top: 0;
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; flex-wrap: wrap;
-  padding: 12px;
-  background: color-mix(in srgb, var(--panel) 92%, transparent);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 6px 18px var(--shadow-1);
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--border);
 }
 .toolbar-group { display: flex; align-items: center; gap: 10px; }
 
@@ -492,10 +506,9 @@ th[data-computed] .th-label::before { content: "ƒ "; opacity: 0.6; font-style: 
 
 /* ===== Data Table ===== */
 .table-wrap {
-  margin-top: 18px; width: 100%; overflow: auto;   /* 세로/가로 스크롤 컨테이너 */
-  background: var(--panel); border-radius: 12px;
-  border: 1.5px solid var(--border);
-  box-shadow: 0 12px 30px var(--shadow-1);
+  margin-top: 12px; width: 100%; overflow: auto;   /* 세로/가로 스크롤 컨테이너 */
+  background: var(--panel); border-radius: 8px;
+  border: 1px solid var(--border);
 }
 table { border-collapse: collapse; font-size: 13px; table-layout: fixed; width: 100%; }
 th, td {

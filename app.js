@@ -31,6 +31,10 @@ const calcWrap = document.getElementById("calcWrap");
 const calcBtn = document.getElementById("calcBtn");
 const calcPanel = document.getElementById("calcPanel");
 const csvPanel = document.getElementById("csvPanel");
+const lookupHeading = document.getElementById("lookupHeading");
+const kpiSummary = document.getElementById("kpiSummary");
+const totalSkuKpi = document.getElementById("totalSkuKpi");
+const missingOptionKpi = document.getElementById("missingOptionKpi");
 
 // CSV 내보낼 컬럼 선택 (테이블별 Set, 없으면 전체)
 const csvSelectedByTable = {};
@@ -69,6 +73,7 @@ const DOWNLOAD_ORDER_FALLBACK = {
 };
 
 const fullData = {};    // { tableName: [row, ...] }  전체 데이터 보관 (클라이언트 페이징)
+const fullDataPromises = {}; // 동일 테이블의 진행 중 전체 조회를 공유해 중복 요청 방지
 const countCache = {};  // { tableName: { searchKey: 전체행수 } } 서버 페이징 count 재사용
 
 // 컬럼 타입별 검색 연산자 (Supabase Studio 방식: 컬럼 타입에 맞는 연산자만 제공)
@@ -418,6 +423,7 @@ async function loadTable(name) {
   currentTable = name;
   restoreState(name);     // 이 테이블의 이전 상태 복원
   toolbar.style.display = "flex";
+  if (name === "skuList") setLookupKpiState("loading");
   await loadPage();
 }
 
@@ -429,6 +435,7 @@ async function loadPage() {
     status.style.display = "block";
     status.textContent = `설정 오류: ${error.message || error}`;
     tableWrap.style.display = "none";
+    setLookupKpiState("error", error);
     return;
   }
   // 클라이언트 페이징 대상은 별도 경로
@@ -542,10 +549,20 @@ async function loadPageClient() {
     status.style.display = "block";
     status.textContent = `"${table}" 전체 불러오는 중...`;
     tableWrap.style.display = "none";
+    setLookupKpiState("loading");
     try {
-      fullData[table] = await fetchAllRows(table);
+      if (!fullDataPromises[table]) {
+        fullDataPromises[table] = fetchAllRows(table)
+          .then(data => {
+            fullData[table] = data;
+            return data;
+          })
+          .finally(() => { delete fullDataPromises[table]; });
+      }
+      await fullDataPromises[table];
     } catch (e) {
       status.textContent = `오류: ${e.message || e}`;
+      setLookupKpiState("error", e);
       updatePager();
       return;
     }
@@ -556,10 +573,52 @@ async function loadPageClient() {
   let rows = fullData[table];
   if (hasActiveSearch()) rows = clientFilter(rows, searchCol, searchOp, searchVal);
   if (sortCol) rows = clientSort(rows, sortCol, sortAsc);
+  updateLookupKpis(rows);
   const total = rows.length;
   const from = currentPage * pageSize;
   const pageRows = rows.slice(from, from + pageSize);
   renderTable(pageRows, total, from);
+}
+
+function setLookupKpiState(state, error) {
+  if (currentTable !== "skuList") {
+    kpiSummary.style.display = "none";
+    return;
+  }
+  kpiSummary.style.display = "flex";
+  if (state === "loading") {
+    totalSkuKpi.textContent = "계산 중";
+    missingOptionKpi.textContent = "계산 중";
+  } else if (state === "error") {
+    totalSkuKpi.textContent = "오류";
+    missingOptionKpi.textContent = "오류";
+    kpiSummary.title = error && (error.message || String(error));
+  }
+}
+
+function getOptionIdKey(rows) {
+  const keys = rows.reduce((all, row) => {
+    Object.keys(row || {}).forEach(key => { if (!all.includes(key)) all.push(key); });
+    return all;
+  }, []);
+  // 실제 키를 우선 사용하고, API 응답의 대소문자·공백 차이도 안전하게 허용한다.
+  return keys.find(key => /^option\s*_?\s*id$/i.test(key)) ||
+    keys.find(key => key.replace(/[\s_]/g, "").toLowerCase() === "optionid") || null;
+}
+
+function updateLookupKpis(rows) {
+  if (currentTable !== "skuList") return;
+  kpiSummary.style.display = "flex";
+  kpiSummary.removeAttribute("title");
+  const optionIdKey = getOptionIdKey(rows);
+  const missing = optionIdKey
+    ? rows.reduce((count, row) => {
+      const value = row[optionIdKey];
+      return count + (value === null || value === undefined || (typeof value === "string" && value.trim() === "") ? 1 : 0);
+    }, 0)
+    : 0;
+  totalSkuKpi.textContent = rows.length.toLocaleString();
+  missingOptionKpi.textContent = optionIdKey ? missing.toLocaleString() : "컬럼 없음";
 }
 
 // 클라이언트 정렬 (숫자/날짜/문자 자동, null은 뒤로)
@@ -1846,12 +1905,15 @@ downloadBtn.addEventListener("click", e => {
 csvPanel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", () => csvPanel.classList.remove("open"));
 
-// 상단 탭(원본데이터 / 조회 / 도구) 전환
-const subnavByView = { raw: document.getElementById("subnav-raw"), lookup: document.getElementById("subnav-lookup") };
+// 사이드바 Data 그룹 및 도구 화면 전환
+const subnavByView = { raw: document.getElementById("subnav-raw") };
 const barcodeView = document.getElementById("barcodeView");
 const imageNameChangeView = document.getElementById("imageNameChangeView");
 const imageDownloadView = document.getElementById("imageDownloadView");
 const navToggle = document.getElementById("navToggle");
+const dataMenuToggle = document.getElementById("dataMenuToggle");
+const dataSubmenu = document.getElementById("dataSubmenu");
+const lookupRefreshBtn = document.getElementById("lookupRefreshBtn");
 const NAV_COLLAPSED_KEY = "socpSidebarCollapsed";
 
 function setSidebarCollapsed(collapsed) {
@@ -1866,24 +1928,59 @@ navToggle.addEventListener("click", () => {
   localStorage.setItem(NAV_COLLAPSED_KEY, String(collapsed));
   setSidebarCollapsed(collapsed);
 });
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    if (tab.classList.contains("active")) return;
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    Object.entries(subnavByView).forEach(([view, el]) => { el.style.display = view === tab.dataset.view ? "flex" : "none"; });
-    const isToolView = ["barcode", "image-name-change", "image-download"].includes(tab.dataset.view);
-    barcodeView.style.display = tab.dataset.view === "barcode" ? "block" : "none";
-    imageNameChangeView.style.display = tab.dataset.view === "image-name-change" ? "block" : "none";
-    imageDownloadView.style.display = tab.dataset.view === "image-download" ? "block" : "none";
+function setDataMenuExpanded(expanded) {
+  dataSubmenu.hidden = !expanded;
+  dataMenuToggle.setAttribute("aria-expanded", String(expanded));
+  dataMenuToggle.querySelector(".menu-chevron").textContent = expanded ? "expand_less" : "expand_more";
+}
+
+function showView(view) {
+  const isLookup = view === "lookup";
+  const isRaw = view === "raw";
+  const isToolView = ["barcode", "image-name-change", "image-download"].includes(view);
+  document.querySelectorAll(".tab[data-view]").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
+  dataMenuToggle.classList.toggle("active", isLookup || isRaw);
+  Object.entries(subnavByView).forEach(([name, el]) => { el.style.display = name === view ? "flex" : "none"; });
+  lookupHeading.style.display = isLookup ? "flex" : "none";
+  barcodeView.style.display = view === "barcode" ? "block" : "none";
+  imageNameChangeView.style.display = view === "image-name-change" ? "block" : "none";
+  imageDownloadView.style.display = view === "image-download" ? "block" : "none";
+
+  if (isLookup) {
+    setDataMenuExpanded(true);
     document.querySelectorAll(".table-card").forEach(i => i.classList.remove("active"));
+    if (currentTable !== "skuList") loadTable("skuList");
+    else {
+      toolbar.style.display = "flex";
+      if (fullData.skuList) loadPage(); // 캐시된 데이터로 현재 필터/정렬 상태만 다시 그린다.
+    }
+    return;
+  }
+
+  if (isRaw || isToolView) {
     currentTable = null;
     toolbar.style.display = "none";
     tableWrap.style.display = "none";
+    kpiSummary.style.display = "none";
     status.style.display = isToolView ? "none" : "block";
-    if (!isToolView) status.textContent = "테이블을 선택하면 데이터가 여기에 표시됩니다.";
-  });
+    if (isRaw) status.textContent = "원본 테이블을 선택하면 데이터가 여기에 표시됩니다.";
+  }
+}
+
+dataMenuToggle.addEventListener("click", () => setDataMenuExpanded(dataSubmenu.hidden));
+document.querySelectorAll(".tab[data-view]").forEach(tab => tab.addEventListener("click", () => showView(tab.dataset.view)));
+
+lookupRefreshBtn.addEventListener("click", () => {
+  delete cache.skuList;
+  delete fullData.skuList;
+  delete countCache.skuList;
+  delete tableState.skuList;
+  delete selectedRowsByTable.skuList;
+  if (currentTable === "skuList") { restoreState("skuList"); loadPage(); }
 });
+
+// 첫 진입은 Data > 조회이며, skuList의 기존 로딩 함수를 즉시 호출한다.
+showView("lookup");
 
 document.querySelectorAll(".table-card").forEach(el => {
   el.addEventListener("click", e => {
