@@ -32,6 +32,8 @@ const calcBtn = document.getElementById("calcBtn");
 const calcPanel = document.getElementById("calcPanel");
 const csvPanel = document.getElementById("csvPanel");
 const lookupHeading = document.getElementById("lookupHeading");
+const lookupTitle = document.getElementById("lookupTitle");
+const lookupTabs = document.querySelectorAll(".lookup-tab");
 const kpiSummary = document.getElementById("kpiSummary");
 const totalSkuKpi = document.getElementById("totalSkuKpi");
 const missingStockIdKpi = document.getElementById("missingStockIdKpi");
@@ -66,6 +68,7 @@ const CLIENT_PAGED = new Set([
 const DEFAULT_SORT = { "skuList": { col: "최근발주일", asc: false } };
 const DOWNLOAD_ORDER_FALLBACK = {
   "skuList": ["SKU ID", "Product ID", "stockID"],
+  "sku_barcode_product_view": ["SKU ID", "바코드"],
   "@DN_SOCP_orderHistory": ["발주일", "SKU ID", "SKU Barcode"],
   "@DN_상품 공급상태 관리": ["SKU ID", "바코드"],
   "@SC_SKU ID & stockID": ["SKU ID", "stockID", "Product ID"],
@@ -75,6 +78,11 @@ const DOWNLOAD_ORDER_FALLBACK = {
 const fullData = {};    // { tableName: [row, ...] }  전체 데이터 보관 (클라이언트 페이징)
 const fullDataPromises = {}; // 동일 테이블의 진행 중 전체 조회를 공유해 중복 요청 방지
 const countCache = {};  // { tableName: { searchKey: 전체행수 } } 서버 페이징 count 재사용
+
+const LOOKUP_TABLES = {
+  skuList: { title: "SKU 조회", refreshLabel: "SKU 데이터 새로고침" },
+  sku_barcode_product_view: { title: "SKU · 바코드 조회", refreshLabel: "SKU·바코드 데이터 새로고침" },
+};
 
 // 컬럼 타입별 검색 연산자 (Supabase Studio 방식: 컬럼 타입에 맞는 연산자만 제공)
 const FILTER_OPS = {
@@ -1937,6 +1945,25 @@ function setDataMenuExpanded(expanded) {
   dataMenuToggle.querySelector(".menu-chevron").textContent = expanded ? "expand_less" : "expand_more";
 }
 
+function showLookupTable(name) {
+  const info = LOOKUP_TABLES[name];
+  if (!info) return;
+  lookupTabs.forEach(tab => {
+    const active = tab.dataset.lookupTable === name;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+  lookupTitle.textContent = info.title;
+  lookupRefreshBtn.title = info.refreshLabel;
+  lookupRefreshBtn.setAttribute("aria-label", info.refreshLabel);
+  if (name !== "skuList") kpiSummary.style.display = "none";
+  if (currentTable !== name) loadTable(name);
+  else {
+    toolbar.style.display = "flex";
+    loadPage();
+  }
+}
+
 function showView(view) {
   const isLookup = view === "lookup";
   const isRaw = view === "raw";
@@ -1952,11 +1979,7 @@ function showView(view) {
   if (isLookup) {
     setDataMenuExpanded(true);
     document.querySelectorAll(".table-card").forEach(i => i.classList.remove("active"));
-    if (currentTable !== "skuList") loadTable("skuList");
-    else {
-      toolbar.style.display = "flex";
-      if (fullData.skuList) loadPage(); // 캐시된 데이터로 현재 필터/정렬 상태만 다시 그린다.
-    }
+    showLookupTable(LOOKUP_TABLES[currentTable] ? currentTable : "skuList");
     return;
   }
 
@@ -1972,14 +1995,16 @@ function showView(view) {
 
 dataMenuToggle.addEventListener("click", () => setDataMenuExpanded(dataSubmenu.hidden));
 document.querySelectorAll(".tab[data-view]").forEach(tab => tab.addEventListener("click", () => showView(tab.dataset.view)));
+lookupTabs.forEach(tab => tab.addEventListener("click", () => showLookupTable(tab.dataset.lookupTable)));
 
 lookupRefreshBtn.addEventListener("click", () => {
-  delete cache.skuList;
-  delete fullData.skuList;
-  delete countCache.skuList;
-  delete tableState.skuList;
-  delete selectedRowsByTable.skuList;
-  if (currentTable === "skuList") { restoreState("skuList"); loadPage(); }
+  const name = LOOKUP_TABLES[currentTable] ? currentTable : "skuList";
+  delete cache[name];
+  delete fullData[name];
+  delete countCache[name];
+  delete tableState[name];
+  delete selectedRowsByTable[name];
+  if (currentTable === name) { restoreState(name); loadPage(); }
 });
 
 // 첫 진입은 Data > 조회이며, skuList의 기존 로딩 함수를 즉시 호출한다.
@@ -2028,6 +2053,7 @@ document.querySelectorAll(".refresh-btn").forEach(btn => {
   btn.addEventListener("click", e => {
     e.stopPropagation();
     const item = btn.closest(".table-card");
+    if (!item) return;
     const name = item.dataset.table;
     delete cache[name];                // 캐시 비우기
     delete fullData[name];             // 클라이언트 페이징 전체 데이터도 비우기

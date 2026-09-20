@@ -156,6 +156,10 @@ body.sidebar-collapsed .content { margin-left: 0; }
 /* ===== Data navigation ===== */
 .lookup-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 18px; }
 .lookup-heading h1 { font-size: 22px; letter-spacing: -.55px; line-height: 1.2; }
+.lookup-tabs { display: flex; gap: 6px; margin-top: 12px; }
+.lookup-tab { border: 1px solid var(--border); border-radius: 8px; padding: 7px 11px; background: var(--panel); color: var(--muted); font: 600 12px/1 inherit; cursor: pointer; }
+.lookup-tab:hover { color: var(--text); background: var(--panel-2); }
+.lookup-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .eyebrow { margin-bottom: 5px; color: var(--accent-2); font-size: 11px; font-weight: 700; letter-spacing: .9px; }
 .lookup-refresh { flex: 0 0 auto; border: 1px solid var(--border); background: var(--panel-2); opacity: 1; }
 .kpi-summary { display: flex; align-items: center; gap: 24px; margin-bottom: 16px; padding: 12px 2px; border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border); }
