@@ -115,13 +115,10 @@ const FILTER_OPS = {
   ],
 };
 
-// 테이블별 특정 컬럼 기본 너비 지정
-const COL_WIDTH_OVERRIDES = {
-  "@DN_SOCP_orderHistory": { "SKU 이름": 500, "SKU ID": 120, "SKU Barcode": 150 },
-  "@DN_상품 공급상태 관리": { "상품명": 500, "SKU ID": 120, "바코드": 150 },
-  "@SC_rocketStock": { "Item Name": 500, "Link": 400 },
-  "skuList": { "상품명": 400, "Link": 80 },
-};
+// 상품명만 긴 값 때문에 표 전체가 과도하게 넓어지지 않도록 기본 폭을 사용합니다.
+// 나머지 열은 헤더와 현재 페이지 데이터 중 더 긴 값의 자연 폭을 그대로 사용합니다.
+const PRODUCT_NAME_WIDTH = 400;
+const COL_WIDTH_OVERRIDES = {};
 
 // 테이블별 숨김 컬럼 설정 (localStorage에 저장되어 새로고침 후에도 유지)
 const HIDDEN_COLS_KEY = "socpHiddenCols";
@@ -1480,6 +1477,7 @@ function fitColumns() {
   let widths = ths.map(th => {
     if (th.classList.contains("row-select-th")) return ROW_SELECT_W;
     const col = th.dataset.col;
+    if (col === "상품명") return PRODUCT_NAME_WIDTH;
     if (overrides[col]) return overrides[col];
     return Math.ceil(th.offsetWidth);
   });
