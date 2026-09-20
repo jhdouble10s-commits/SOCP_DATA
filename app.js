@@ -68,7 +68,7 @@ const CLIENT_PAGED = new Set([
 const DEFAULT_SORT = { "skuList": { col: "최근발주일", asc: false } };
 const DOWNLOAD_ORDER_FALLBACK = {
   "skuList": ["SKU ID", "Product ID", "stockID"],
-  "sku_barcode_product_view": ["SKU ID", "바코드"],
+  "orderStatus": ["SKU ID", "바코드", "stockID"],
   "@DN_SOCP_orderHistory": ["발주일", "SKU ID", "SKU Barcode"],
   "@DN_상품 공급상태 관리": ["SKU ID", "바코드"],
   "@SC_SKU ID & stockID": ["SKU ID", "stockID", "Product ID"],
@@ -81,7 +81,7 @@ const countCache = {};  // { tableName: { searchKey: 전체행수 } } 서버 페
 
 const LOOKUP_TABLES = {
   skuList: { title: "SKU 조회", refreshLabel: "SKU 데이터 새로고침" },
-  sku_barcode_product_view: { title: "SKU · 바코드 조회", refreshLabel: "SKU·바코드 데이터 새로고침" },
+  orderStatus: { title: "SKU · 바코드 조회", refreshLabel: "SKU·바코드 데이터 새로고침" },
 };
 
 // 컬럼 타입별 검색 연산자 (Supabase Studio 방식: 컬럼 타입에 맞는 연산자만 제공)
@@ -1556,11 +1556,13 @@ function escapeAttr(v) {
 // 원본 값(URL)은 그대로 두고, 화면에만 라벨을 보여주며 클릭 시 URL로 이동
 const LINK_COLS = {
   "skuList": { "Link": "쿠팡" },
+  "orderStatus": { "Link": "쿠팡" },
 };
 
 // 테이블별 "이미지 컬럼": URL을 라벨로 표시 + 호버 미리보기 + 클릭 확대
 const IMAGE_COLS = {
   "skuList": { "Image URL": "이미지" },
+  "orderStatus": { "Image URL": "이미지" },
 };
 
 // 셀 HTML 생성 (이미지/링크 컬럼이면 <a>, 아니면 이스케이프된 텍스트)
