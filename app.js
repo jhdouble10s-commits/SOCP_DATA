@@ -34,7 +34,7 @@ const csvPanel = document.getElementById("csvPanel");
 const lookupHeading = document.getElementById("lookupHeading");
 const kpiSummary = document.getElementById("kpiSummary");
 const totalSkuKpi = document.getElementById("totalSkuKpi");
-const missingOptionKpi = document.getElementById("missingOptionKpi");
+const missingStockIdKpi = document.getElementById("missingStockIdKpi");
 
 // CSV 내보낼 컬럼 선택 (테이블별 Set, 없으면 전체)
 const csvSelectedByTable = {};
@@ -59,17 +59,17 @@ const cache = {};
 const CLIENT_PAGED = new Set([
   "skuList",
   "@DN_상품 공급상태 관리",
-  "@SC_SKU ID & Option ID",
+  "@SC_SKU ID & stockID",
   "@SC_rocketStock",
 ]);
 // 테이블별 기본 정렬 (뷰의 order by를 대신해 브라우저에서 처리)
 const DEFAULT_SORT = { "skuList": { col: "최근발주일", asc: false } };
 const DOWNLOAD_ORDER_FALLBACK = {
-  "skuList": ["SKU ID", "Product ID", "Option ID"],
+  "skuList": ["SKU ID", "Product ID", "stockID"],
   "@DN_SOCP_orderHistory": ["발주일", "SKU ID", "SKU Barcode"],
   "@DN_상품 공급상태 관리": ["SKU ID", "바코드"],
-  "@SC_SKU ID & Option ID": ["SKU ID", "Option ID", "Product ID"],
-  "@SC_rocketStock": ["SKU ID", "Option ID", "Product ID"],
+  "@SC_SKU ID & stockID": ["SKU ID", "stockID", "Product ID"],
+  "@SC_rocketStock": ["SKU ID", "stockID", "Product ID"],
 };
 
 const fullData = {};    // { tableName: [row, ...] }  전체 데이터 보관 (클라이언트 페이징)
@@ -588,37 +588,40 @@ function setLookupKpiState(state, error) {
   kpiSummary.style.display = "flex";
   if (state === "loading") {
     totalSkuKpi.textContent = "계산 중";
-    missingOptionKpi.textContent = "계산 중";
+    missingStockIdKpi.textContent = "계산 중";
   } else if (state === "error") {
     totalSkuKpi.textContent = "오류";
-    missingOptionKpi.textContent = "오류";
+    missingStockIdKpi.textContent = "오류";
     kpiSummary.title = error && (error.message || String(error));
   }
 }
 
-function getOptionIdKey(rows) {
+function getStockIdKey(rows) {
   const keys = rows.reduce((all, row) => {
     Object.keys(row || {}).forEach(key => { if (!all.includes(key)) all.push(key); });
     return all;
   }, []);
   // 실제 키를 우선 사용하고, API 응답의 대소문자·공백 차이도 안전하게 허용한다.
-  return keys.find(key => /^option\s*_?\s*id$/i.test(key)) ||
-    keys.find(key => key.replace(/[\s_]/g, "").toLowerCase() === "optionid") || null;
+  return keys.find(key => /^stock\s*_?\s*id$/i.test(key)) ||
+    keys.find(key => key.replace(/[\s_]/g, "").toLowerCase() === "stockid") || null;
 }
 
 function updateLookupKpis(rows) {
   if (currentTable !== "skuList") return;
   kpiSummary.style.display = "flex";
   kpiSummary.removeAttribute("title");
-  const optionIdKey = getOptionIdKey(rows);
-  const missing = optionIdKey
-    ? rows.reduce((count, row) => {
-      const value = row[optionIdKey];
+  // KPI is a dashboard total, not a count of only the current search result.
+  // This also preserves the column name when a filter produces zero rows.
+  const sourceRows = fullData.skuList || rows;
+  const stockIdKey = getStockIdKey(sourceRows);
+  const missing = stockIdKey
+    ? sourceRows.reduce((count, row) => {
+      const value = row[stockIdKey];
       return count + (value === null || value === undefined || (typeof value === "string" && value.trim() === "") ? 1 : 0);
     }, 0)
     : 0;
-  totalSkuKpi.textContent = rows.length.toLocaleString();
-  missingOptionKpi.textContent = optionIdKey ? missing.toLocaleString() : "컬럼 없음";
+  totalSkuKpi.textContent = sourceRows.length.toLocaleString();
+  missingStockIdKpi.textContent = stockIdKey ? missing.toLocaleString() : "컬럼 없음";
 }
 
 // 클라이언트 정렬 (숫자/날짜/문자 자동, null은 뒤로)

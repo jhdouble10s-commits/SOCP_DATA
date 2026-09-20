@@ -1,0 +1,3 @@
+# Local-only batch tooling; never publish it as static site content.
+automation/
+*.command
