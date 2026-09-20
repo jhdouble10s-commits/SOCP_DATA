@@ -5,6 +5,12 @@
 begin;
 set local statement_timeout = '5min';
 
+-- 새 프로젝트에서는 orderAnalysis 테이블을 최초 한 번 생성합니다.
+-- 현재처럼 테이블이 이미 있으면 그대로 유지하고 다음 단계로 진행합니다.
+create table if not exists public."orderAnalysis" (
+  "SKU ID" bigint primary key
+);
+
 -- 기존 테이블에 집계 기본 열이 없을 때만 추가합니다.
 alter table public."orderAnalysis"
   add column if not exists "바코드" text,
