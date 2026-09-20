@@ -176,7 +176,11 @@ $$;
 revoke all on function public.refresh_order_analysis() from public, anon, authenticated;
 revoke all on function public.ensure_order_analysis_year(integer, boolean) from public, anon, authenticated;
 
--- 현재와 다음 해의 분기 열을 준비하고, 마지막에 한 번만 집계합니다.
+-- 모든 연도를 같은 방식으로 준비하고, 마지막에 한 번만 집계합니다.
+-- 2023_Q1은 발주 원본 시작일(2023-05-01) 이전 기간이므로 값이 0입니다.
+select public.ensure_order_analysis_year(2023, false);
+select public.ensure_order_analysis_year(2024, false);
+select public.ensure_order_analysis_year(2025, false);
 select public.ensure_order_analysis_year(2026, false);
 select public.ensure_order_analysis_year(2027, false);
 select public.refresh_order_analysis();
