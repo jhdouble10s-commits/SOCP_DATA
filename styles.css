@@ -524,12 +524,14 @@ th {
   background: color-mix(in srgb, var(--panel-2) 94%, transparent);
   font-weight: 600; font-size: 12px; color: var(--muted-2);
   text-transform: uppercase; letter-spacing: 0.3px;
+  /* 헤더는 항상 전체 이름을 표시하고, 넓어진 표는 가로 스크롤로 봅니다. */
+  overflow: visible; text-overflow: clip;
   position: sticky; top: 0; z-index: 3;   /* 스크롤 시 헤더 고정 */
   user-select: none;
   border-bottom: 1.5px solid var(--border);
 }
 th:hover { background: var(--border-soft); }
-th .th-label { pointer-events: none; }
+th .th-label { pointer-events: none; white-space: nowrap; }
 .sort-ind { color: var(--accent); font-size: 11px; margin-left: 2px; }
 td { color: var(--text-2); }
 tr:hover td { background: var(--panel-2); }

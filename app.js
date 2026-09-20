@@ -1453,7 +1453,8 @@ clearSearchBtn.addEventListener("click", () => {
   loadPage();
 });
 
-// 기본 너비: 데이터 내용 폭에 맞추되, 전체 합이 화면을 넘으면 비율대로 줄여 잘리게 함
+// 기본 너비: 헤더와 데이터의 자연 폭을 유지합니다.
+// 표가 화면보다 넓으면 table-wrap의 가로 스크롤을 사용하므로 헤더 이름은 줄이거나 생략하지 않습니다.
 const MIN_W = 80;
 const ROW_SELECT_W = 42;
 // 표 스크롤 영역 높이를 화면 하단까지 채움 → 헤더(sticky)가 표 안에서 고정됨
@@ -1471,7 +1472,6 @@ window.addEventListener("resize", () => {
 function fitColumns() {
   const table = tableWrap.querySelector("table");
   if (!table) return;
-  const avail = tableWrap.clientWidth;           // 화면(컨테이너) 폭
   // auto 레이아웃으로 각 컬럼 자연 폭 측정
   table.style.tableLayout = "auto";
   table.style.width = "auto";
@@ -1483,26 +1483,7 @@ function fitColumns() {
     if (overrides[col]) return overrides[col];
     return Math.ceil(th.offsetWidth);
   });
-  const total = widths.reduce((a, b) => a + b, 0);
-
-  // 화면보다 넓으면 override 컬럼은 유지하고 나머지를 비율 축소
-  if (total > avail) {
-    const fixedSum = ths.reduce((s, th, i) => {
-      if (th.classList.contains("row-select-th")) return s + widths[i];
-      return overrides[th.dataset.col] ? s + widths[i] : s;
-    }, 0);
-    const flexTotal = total - fixedSum;
-    const flexAvail = avail - fixedSum;
-    if (flexAvail > 0 && flexTotal > 0) {
-      widths = widths.map((w, i) => {
-        if (ths[i].classList.contains("row-select-th")) return ROW_SELECT_W;
-        if (overrides[ths[i].dataset.col]) return w;
-        return Math.max(MIN_W, Math.floor(w / flexTotal * flexAvail));
-      });
-    }
-  }
-
-  // 고정 레이아웃으로 전환 후 적용 (넘치는 셀 내용은 잘림)
+  // 고정 레이아웃으로 전환 후 적용합니다. 긴 셀 값만 말줄임 처리합니다.
   table.style.tableLayout = "fixed";
   ths.forEach((th, i) => { th.style.width = widths[i] + "px"; });
   syncTableWidth();  // 표 폭 = 컬럼 합으로 고정
