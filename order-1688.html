@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>1688 주문가공</title>
+  <link rel="stylesheet" href="tool-pages.css" />
+  <link rel="stylesheet" href="order-1688.css" />
+</head>
+<body class="tool-page">
+  <main>
+    <header class="heading">
+      <div><div class="eyebrow">Skills / 1688</div><h1>1688 주문가공</h1><p>주문 엑셀에서 문의할 주문을 골라, 판매자별로 정리합니다.</p></div>
+      <button id="resetBtn" class="secondary" disabled>초기화</button>
+    </header>
+    <section class="card upload-card" aria-label="엑셀 업로드">
+      <label class="drop-zone" id="dropZone" for="fileInput">
+        <strong>1688 주문 엑셀을 여기에 끌어오세요</strong>
+        <span>또는 눌러서 파일 선택 · .xlsx / .xls · 최대 20MB</span>
+        <input id="fileInput" type="file" accept=".xlsx,.xls" />
+      </label>
+      <p class="local-note">파일은 이 브라우저에서만 처리되며 서버에 업로드되지 않습니다.</p>
+      <div id="sheetControls" hidden><span id="fileName"></span><label for="sheetSelect">처리할 시트</label><select id="sheetSelect"></select></div>
+    </section>
+    <section class="rules" aria-label="가공 순서">
+      <div><b>01</b><strong>하위 주문번호 확인</strong><p><span lang="zh">下游订单号</span>가 있는 행만 유지</p></div>
+      <div><b>02</b><strong>배송비 기준 적용</strong><p>메모가 없고 배송비 ≤ 15이면 삭제</p></div>
+      <div><b>03</b><strong>배송비 비율 확인</strong><p>메모가 없고 비율 &lt; 10%이면 삭제</p></div>
+    </section>
+    <p class="rule-note">메모가 있는 행은 2·3단계에서 유지합니다. 비율이 정확히 10%인 행도 유지합니다.</p>
+    <p id="status" role="status" aria-live="polite">원본 주문 파일을 선택하면 자동으로 가공합니다.</p>
+    <p id="error" role="alert" hidden></p>
+    <section id="results" hidden>
+      <div class="summary" aria-label="단계별 결과">
+        <div><span>원본 데이터 행</span><strong id="inputCount">0</strong></div>
+        <div><span>1단계 후</span><strong id="step1Count">0</strong><small id="step1Note"></small></div>
+        <div><span>2단계 후</span><strong id="step2Count">0</strong><small id="step2Note"></small></div>
+        <div class="final"><span>최종 주문</span><strong id="finalCount">0</strong><small id="step3Note"></small></div>
+      </div>
+      <section class="card preview-card">
+        <div class="result-heading"><div><h2>가공 결과</h2><p id="resultNote"></p></div><button id="downloadBtn" class="btn-primary" disabled>엑셀 다운로드 · 시트 2개</button></div>
+        <div class="preview-controls">
+          <div class="view-buttons" role="group" aria-label="미리보기 대상"><button id="includedBtn" aria-pressed="true">남긴 주문</button><button id="excludedBtn" aria-pressed="false">제외된 행</button></div>
+          <label class="search">결과 검색<input id="searchInput" type="search" placeholder="주문번호, 판매자, 하위 주문번호" /></label>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="주문 미리보기"><table><thead id="previewHead"></thead><tbody id="previewBody"></tbody></table></div>
+        <div class="pagination"><span id="pageInfo"></span><div><button id="prevBtn">이전</button><button id="nextBtn">다음</button></div></div>
+        <p class="export-note">다운로드는 검색과 관계없이 최종 주문 전체를 포함합니다. 중복 판매자를 먼저 모으고, 같은 판매자 안에서는 원본 순서를 유지합니다.</p>
+        <details><summary>다운로드 파일 구성</summary><p>하나의 엑셀에 시트 2개가 포함됩니다. 첫 번째 Sheet2는 기존 가공 결과 28열입니다. J열은 배송비 비율, M열은 판매자 채팅 링크, O열은 주문번호를 붙인 가격 조정 요청 문구, P열은 순번입니다. 열 제목은 샘플과 동일하게 유지합니다.</p><p>두 번째 Sheet3는 下游订单号가 있는 모든 행을 원본 순서대로 담습니다. 원본 A~Z열과 下游订单号의 27열이며, 구매자 메모 및 배송비 조건은 적용하지 않습니다. 买家留言 열은 포함하지 않습니다.</p><p>병합된 빈칸은 채우지 않습니다. 상품 정보는 남은 원본 행의 값을 사용하며 수량을 합산하지 않습니다. 채팅 열은 바로 열 수 있는 링크로 저장됩니다.</p></details>
+      </section>
+    </section>
+  </main>
+  <script src="vendor/xlsx-0.20.3.min.js"></script>
+  <script src="order-1688-core.js"></script>
+  <script src="order-1688.js"></script>
+</body>
+</html>

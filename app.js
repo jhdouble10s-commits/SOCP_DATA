@@ -1902,6 +1902,7 @@ const subnavByView = { raw: document.getElementById("subnav-raw") };
 const barcodeView = document.getElementById("barcodeView");
 const imageNameChangeView = document.getElementById("imageNameChangeView");
 const imageDownloadView = document.getElementById("imageDownloadView");
+const order1688View = document.getElementById("order1688View");
 const navToggle = document.getElementById("navToggle");
 const dataMenuToggle = document.getElementById("dataMenuToggle");
 const dataSubmenu = document.getElementById("dataSubmenu");
@@ -1948,7 +1949,7 @@ function showLookupTable(name) {
 function showView(view) {
   const isLookup = view === "lookup";
   const isRaw = view === "raw";
-  const isToolView = ["barcode", "image-name-change", "image-download"].includes(view);
+  const isToolView = ["barcode", "image-name-change", "image-download", "order-1688"].includes(view);
   document.querySelectorAll(".tab[data-view]").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
   dataMenuToggle.classList.toggle("active", isLookup || isRaw);
   Object.entries(subnavByView).forEach(([name, el]) => { el.style.display = name === view ? "flex" : "none"; });
@@ -1956,6 +1957,7 @@ function showView(view) {
   barcodeView.style.display = view === "barcode" ? "block" : "none";
   imageNameChangeView.style.display = view === "image-name-change" ? "block" : "none";
   imageDownloadView.style.display = view === "image-download" ? "block" : "none";
+  order1688View.style.display = view === "order-1688" ? "block" : "none";
 
   if (isLookup) {
     setDataMenuExpanded(true);
